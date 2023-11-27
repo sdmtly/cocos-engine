@@ -272,7 +272,7 @@ cc.macro = {
      * @property {Boolean} ENABLE_TRANSPARENT_CANVAS
      * @default false
      */
-    ENABLE_TRANSPARENT_CANVAS: false,
+    ENABLE_TRANSPARENT_CANVAS: true,    // kennys 支持video 设置为true
 
     /**
      * !#en

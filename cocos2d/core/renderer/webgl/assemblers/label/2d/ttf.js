@@ -51,8 +51,11 @@ export default class WebglTTFAssembler extends TTFAssembler {
 
     updateVerts (comp) {
         let node = comp.node,
-            canvasWidth = comp._ttfTexture.width,
-            canvasHeight = comp._ttfTexture.height,
+            // canvasWidth = comp._ttfTexture.width,
+            // canvasHeight = comp._ttfTexture.height,  add kennys
+            canvasWidth = comp._ttfTexture.width / cc.game.ttfLabelScale,
+            canvasHeight = comp._ttfTexture.height / cc.game.ttfLabelScale,
+            
             appx = node.anchorX * node.width,
             appy = node.anchorY * node.height;
 

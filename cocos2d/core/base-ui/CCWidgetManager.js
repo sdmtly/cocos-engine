@@ -504,6 +504,7 @@ var widgetManager = cc._widgetManager = module.exports = {
         }
     },
     updateAlignment: updateAlignment,
+    align:align,    //add by kennys
     AlignMode: AlignMode,
 };
 

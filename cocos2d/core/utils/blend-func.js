@@ -64,6 +64,9 @@ let BlendFunc = cc.Class({
     },
 
     setMaterial (index, material) {
+
+        this._getNewBlendFactor()   //add kennys
+
         let materialVar = RenderComponent.prototype.setMaterial.call(this, index, material);
 
         if (this._srcBlendFactor !== BlendFactor.SRC_ALPHA || this._dstBlendFactor !== BlendFactor.ONE_MINUS_SRC_ALPHA) {
@@ -78,6 +81,9 @@ let BlendFunc = cc.Class({
     },
 
     _updateBlendFunc (force) {
+
+        this._getNewBlendFactor()   //add kennys
+
         if (!force) {
             if (this._srcBlendFactor === BlendFactor.SRC_ALPHA && this._dstBlendFactor === BlendFactor.ONE_MINUS_SRC_ALPHA) {
                 return;
@@ -92,6 +98,9 @@ let BlendFunc = cc.Class({
     },
 
     _updateMaterialBlendFunc (material) {
+
+        this._getNewBlendFactor()   //add kennys
+
         material.setBlend(
             true,
             gfx.BLEND_FUNC_ADD,
@@ -104,6 +113,34 @@ let BlendFunc = cc.Class({
             RenderComponent.prototype.markForRender.call(this, true);
         }        
     },
+
+    //add kennys
+    _getNewBlendFactor() {
+        
+        //如果贴图使用了预乘，则将源改为one
+        if (this && this.spriteFrame && this.spriteFrame.getTexture() && this.spriteFrame.getTexture()._premultiplyAlpha && this._srcBlendFactor != BlendFactor.ONE) {
+            
+            if (this.node.name != "NO_Need_Blend") {
+                // console.log("替换 src1")
+                this._srcBlendFactor = BlendFactor.ONE
+            } else {
+                // console.log("NO_Need")
+            }
+
+        } else if (this.fontSize && this.cacheMode != 2 && !CC_NATIVERENDERER && this._srcBlendFactor != BlendFactor.ONE) {  //如果是系统文字，则变为one
+
+            //debug的文字因为手动改了cachemode 为2 因此需要特殊处理下
+            if (this.node.name == "LEFT-PANEL" || this.node.name == "RIGHT-PANEL") {
+                return;
+            }
+
+            // console.log("替换 src2 ",this.name)
+            this._srcBlendFactor = BlendFactor.ONE
+            this._ttfTexture && this._ttfTexture.setPremultiplyAlpha(true);
+            this._letterTexture && this._letterTexture.setPremultiplyAlpha(true);
+        }
+    }
+    
 });
 
 module.exports = cc.BlendFunc = BlendFunc;

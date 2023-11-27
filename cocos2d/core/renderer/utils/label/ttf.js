@@ -109,7 +109,25 @@ export default class TTFAssembler extends Assembler2D {
         this._calDynamicAtlas(comp);
 
         comp._actualFontSize = _fontSize;
-        comp.node.setContentSize(_nodeContentSize);
+        //add kennys start
+        // comp.node.setContentSize(_nodeContentSize);  
+        {   
+            switch (_overflow) {
+                case Overflow.NONE: {
+                    comp.node.setContentSize(_nodeContentSize);
+                    break;
+                }
+                case Overflow.RESIZE_HEIGHT: {
+                    var nodeSize = cc.Size(comp.node.width, _nodeContentSize.height)
+                    comp.node.setContentSize(nodeSize);
+                    break;
+                }
+                default:
+                    break;
+            }
+
+        }
+        // kennys end
 
         this.updateVerts(comp);
 
@@ -133,7 +151,9 @@ export default class TTFAssembler extends Assembler2D {
             _contentSizeExtend.width = _contentSizeExtend.height = outlineWidth * 2;
         }
         if (_shadowComp) {
-            let shadowWidth = _shadowComp.blur + outlineWidth;
+            // let shadowWidth = _shadowComp.blur + outlineWidth; add kennys
+            let shadowWidth = (_shadowComp.blur + outlineWidth) * cc.game.ttfLabelScale;
+
             left = Math.max(left, -_shadowComp._offset.x + shadowWidth);
             right = Math.max(right, _shadowComp._offset.x + shadowWidth);
             top = Math.max(top, _shadowComp._offset.y + shadowWidth);
@@ -158,13 +178,21 @@ export default class TTFAssembler extends Assembler2D {
         _texture = comp._frame._original ? comp._frame._original._texture : comp._frame._texture;
 
         _string = comp.string.toString();
-        _fontSize = comp._fontSize;
+        // _fontSize = comp._fontSize;  add kennys
+        _fontSize = comp._fontSize * cc.game.ttfLabelScale;
+
         _drawFontSize = _fontSize;
         _underlineThickness = comp.underlineHeight || _drawFontSize / 8;
         _overflow = comp.overflow;
         _canvasSize.width = comp.node.width;
         _canvasSize.height = comp.node.height;
         _nodeContentSize = comp.node.getContentSize();
+
+        //add kennys start
+        _nodeContentSize.width *= cc.game.ttfLabelScale;
+        _nodeContentSize.height *= cc.game.ttfLabelScale;
+        //add kennys end
+
         _lineHeight = comp._lineHeight;
         _hAlign = comp.horizontalAlign;
         _vAlign = comp.verticalAlign;
@@ -332,6 +360,36 @@ export default class TTFAssembler extends Assembler2D {
             _context.shadowColor = 'transparent';
         }
 
+        // kennys start 去掉文字毛边 start
+        if (this._renderComp.node.name == "NO_Need_Smooth") {
+            
+            let startCol = 0//Math.floor((1-nodeScale) / 2 * resultSize.width)
+            let endCol = _context.canvas.width//Math.floor((1 + nodeScale)/2 * resultSize.width)
+            let startRow = 0//Math.floor((1-nodeScale) / 2 * resultSize.height)
+            let endRow = _context.canvas.height//Math.floor((1 + nodeScale) / 2 * resultSize.height)
+
+            let rowBytes = _context.canvas.width * 4; 
+
+            for (let row = startRow; row < endRow; row++) {
+                let srow = row//resultSize.height - 1 - row;
+                let imageData = _context.getImageData(0,srow,endCol, 1);
+                for (let i = 0; i < rowBytes; i++) {
+
+                    if (i % 4 == 3) {
+                        if (imageData.data[i] != 255 && imageData.data[i] != 0) {
+                            imageData.data[i] = 0
+                        }
+                    }
+                }
+                _context.putImageData(imageData, 0, srow);
+            }
+
+            this._renderComp._ttfTexture && this._renderComp._ttfTexture.setFilters(cc.Texture2D.Filter.NEAREST, cc.Texture2D.Filter.NEAREST);
+            this._renderComp._letterTexture && this._renderComp._letterTexture.setFilters(cc.Texture2D.Filter.NEAREST, cc.Texture2D.Filter.NEAREST);
+
+        }
+        // kennys start 去掉文字毛边 end
+
         _texture.handleLoadedTexture();
     }
 
@@ -351,8 +409,11 @@ export default class TTFAssembler extends Assembler2D {
         if (_canvasSize.width > maxTextureSize || _canvasSize.height > maxTextureSize) {
             cc.warn("The maximum texture size supported by the device is " + maxTextureSize);
         }
-        _canvasSize.width = Math.min(_canvasSize.width, maxTextureSize);
-        _canvasSize.height = Math.min(_canvasSize.height, maxTextureSize);
+        //会导致 部分显示异常，因此清除最大限制 add kennys
+        // _canvasSize.width = Math.min(_canvasSize.width, maxTextureSize);
+        // _canvasSize.height = Math.min(_canvasSize.height, maxTextureSize);
+        _canvasSize.width = Math.min(_canvasSize.width, maxTextureSize * cc.game.ttfLabelScale);
+        _canvasSize.height = Math.min(_canvasSize.height, maxTextureSize * cc.game.ttfLabelScale);
 
         let recreate = false;
         if (_canvas.width !== _canvasSize.width) {
@@ -387,7 +448,8 @@ export default class TTFAssembler extends Assembler2D {
         if (nodeSpacingY === 0) {
             nodeSpacingY = _fontSize;
         } else {
-            nodeSpacingY = nodeSpacingY * _fontSize / _drawFontSize;
+            // nodeSpacingY = nodeSpacingY * _fontSize / _drawFontSize; add kennys
+            nodeSpacingY = nodeSpacingY * _fontSize / _drawFontSize * cc.game.ttfLabelScale;
         }
 
         return nodeSpacingY | 0;
@@ -518,25 +580,44 @@ export default class TTFAssembler extends Assembler2D {
                 let rawHeight = parseFloat(canvasSizeY.toFixed(2));
                 _canvasSize.width = rawWidth + _canvasPadding.width;
                 _canvasSize.height = rawHeight + _canvasPadding.height;
-                _nodeContentSize.width = rawWidth + _contentSizeExtend.width;
-                _nodeContentSize.height = rawHeight + _contentSizeExtend.height;
+               // add kennys
+                // _nodeContentSize.width = rawWidth + _contentSizeExtend.width;
+                // _nodeContentSize.height = rawHeight + _contentSizeExtend.height;
+                _nodeContentSize.width = (rawWidth + _contentSizeExtend.width) / cc.game.ttfLabelScale;
+                _nodeContentSize.height = (rawHeight + _contentSizeExtend.height) / cc.game.ttfLabelScale;
                 break;
             }
             case Overflow.SHRINK: {
+                // add kennys
+                _canvasSize.width = _nodeContentSize.width;
+                _canvasSize.height = _nodeContentSize.height;
+
                 this._calculateShrinkFont(paragraphedStrings);
                 this._calculateWrapText(paragraphedStrings);
                 break;
             }
             case Overflow.CLAMP: {
                 this._calculateWrapText(paragraphedStrings);
+                //add kennys
+                _canvasSize.width = _nodeContentSize.width;
+                _canvasSize.height = _nodeContentSize.height;
+
                 break;
             }
             case Overflow.RESIZE_HEIGHT: {
                 this._calculateWrapText(paragraphedStrings);
                 let rawHeight = (_splitedStrings.length + textUtils.BASELINE_RATIO) * this._getLineHeight();
+                
+                //add kennys
+                _canvasSize.width = _nodeContentSize.width;
+                
                 _canvasSize.height = rawHeight + _canvasPadding.height;
+                
                 // set node height
-                _nodeContentSize.height = rawHeight + _contentSizeExtend.height;
+                // _nodeContentSize.height = rawHeight + _contentSizeExtend.height; add kennys
+                _nodeContentSize.width = _nodeContentSize.width / cc.game.ttfLabelScale;
+                _nodeContentSize.height = (rawHeight + _contentSizeExtend.height) / cc.game.ttfLabelScale;
+                
                 break;
             }
         }

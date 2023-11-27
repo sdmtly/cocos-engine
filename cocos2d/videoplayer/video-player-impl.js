@@ -497,6 +497,53 @@ let VideoPlayerImpl = cc.Class({
             this._forceUpdate = false;
         }
     }
+
+    //add kennys 
+    swapUpToCanvas:function swapUpToCanvas(){
+
+        // console.log("videoTest1")
+
+        if ( this._video && this._video.style) {
+
+            
+
+            this._video.style.zIndex = -1
+            this._video.zIndex = -1
+
+            // console.log("videoTest2",this._video)
+
+            // if (this._video.style.zIndex != undefined) {
+            //     this._video.style.zIndex = -1
+            // } else if (this._video.zIndex != undefined) {
+            //     this._video.zIndex = -1
+            // }
+
+        }
+
+        // if(window["wx"] && this._video.underGameView == false) {
+
+        //     this._video.underGameView = true;
+        //     const canvas = window["wx"].createCanvas()
+        //     const gl = canvas.getContext('webgl', {alpha: true})
+
+        //     gl.clearColor(0, 0, 0, 0.5);
+        //     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+        //     gl.enable(gl.BLEND);
+        //     gl.clear(gl.COLOR_BUFFER_BIT);
+
+        //     console.log("videoTest3",this._video.underGameView)
+        // }
+
+    },
+
+    //add kennys 
+    swapUpToCanvasApp:function swapUpToCanvasApp(){
+        if (this._video && this._video.swapUpToCanvasApp) {
+            this._video.swapUpToCanvasApp();
+            console.log("swapUpToCanvasApp aaaa")
+        };
+    }
+    
 });
 
 VideoPlayerImpl.EventType = {

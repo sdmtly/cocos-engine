@@ -167,6 +167,14 @@ var game = {
      */
     renderType: -1,
 
+    /**   add kennys
+     * !#en ttf label render texture scale.
+     * !#zh ttf label 渲染图放大倍数，为了让字体更加清晰。
+     * @property ttfLabelScale
+     * @type {Number}
+     */
+    ttfLabelScale: 2,
+
     /**
      * !#en
      * The current game configuration, including:<br/>

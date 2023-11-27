@@ -174,5 +174,25 @@ cc.profiler = module.exports = {
             cc.director.on(cc.Director.EVENT_AFTER_DRAW, afterDraw);
             _showFPS = true;
         }
+    },
+
+    //add kennys
+    setFpsLabelColor(setAll, fisColor, secColor) {
+        if (!_rootNode || !_rootNode.isValid) return;
+    
+        if (typeof fisColor === "object" || typeof secColor === "object") {
+           let leftNode = _rootNode.getChildByName("LEFT-PANEL");
+           let rightNode = _rootNode.getChildByName("RIGHT-PANEL");
+           if (leftNode && rightNode) {
+              if (setAll) {
+                leftNode.color = rightNode.color = new cc.Color(fisColor);
+              }
+              else {
+                leftNode.color = new cc.Color(fisColor);
+                rightNode.color = new cc.Color(secColor);
+              }
+           }
+        }
     }
+
 }

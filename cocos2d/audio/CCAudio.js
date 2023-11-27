@@ -159,7 +159,12 @@ Audio.State = {
     proto._touchToPlay = function () {
         if (this._src && this._src.loadMode === LoadMode.DOM_AUDIO &&
             this._element.paused) {
-            touchPlayList.push({ instance: this, offset: 0, audio: this._element });
+            //kennysliu 只有背景音乐才需要在下次点击时重试  start
+            // touchPlayList.push({ instance: this, offset: 0, audio: this._element });
+            if (this._src && this._src._name && this._src._name.indexOf("background") != -1) {
+                touchPlayList.push({ instance: this, offset: 0, audio: this._element });
+            }
+            //kennysliu 只有背景音乐才需要在下次点击时重试  end
         }
 
         if (touchBinded) return;
@@ -421,17 +426,38 @@ let WebAudioElement = function (buffer, audio) {
         // If the current audio context time stamp is 0 and audio context state is suspended
         // There may be a need to touch events before you can actually start playing audio
         if ((!audio.context.state || audio.context.state === "suspended") && this._context.currentTime === 0) {
-            let self = this;
-            clearTimeout(this._currentTimer);
-            this._currentTimer = setTimeout(function () {
-                if (self._context.currentTime === 0) {
-                    touchPlayList.push({
-                        instance: self._audio,
-                        offset: offset,
-                        audio: self
-                    });
-                }
-            }, 10);
+            
+            //kennysliu 只有背景音乐才需要在下次点击时重试  start
+            // let self = this;
+            // clearTimeout(this._currentTimer);
+
+            // this._currentTimer = setTimeout(function () {
+            //     if (self._context.currentTime === 0) {
+            //         touchPlayList.push({
+            //             instance: self._audio,
+            //             offset: offset,
+            //             audio: self
+            //         });
+            //     }
+            // }, 10);
+            if (this._audio && this._audio._src && this._audio._src._name && this._audio._src._name.indexOf("background") != -1) {
+
+                let self = this;
+                clearTimeout(this._currentTimer);
+
+                this._currentTimer = setTimeout(function () {
+                    if (self._context.currentTime === 0) {
+                        touchPlayList.push({
+                            instance: self._audio,
+                            offset: offset,
+                            audio: self
+                        });
+                    }
+                }, 10);
+
+            }
+
+            //kennysliu 只有背景音乐才需要在下次点击时重试  end
         }
 
         let sys = cc.sys;
