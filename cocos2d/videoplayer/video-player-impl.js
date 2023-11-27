@@ -496,7 +496,7 @@ let VideoPlayerImpl = cc.Class({
         if (sys.browserType !== sys.BROWSER_TYPE_IE) {
             this._forceUpdate = false;
         }
-    }
+    },
 
     //add kennys 
     swapUpToCanvas:function swapUpToCanvas(){
@@ -543,7 +543,7 @@ let VideoPlayerImpl = cc.Class({
             console.log("swapUpToCanvasApp aaaa")
         };
     }
-    
+
 });
 
 VideoPlayerImpl.EventType = {
