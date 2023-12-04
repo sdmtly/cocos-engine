@@ -116,7 +116,13 @@ let BlendFunc = cc.Class({
 
     //add kennys
     _getNewBlendFactor() {
+
+        // if (cc.sys.platform !== cc.sys.WECHAT_GAME) {
+        //     return
+        // }
         
+        return;
+
         //如果贴图使用了预乘，则将源改为one
         if (this && this.spriteFrame && this.spriteFrame.getTexture() && this.spriteFrame.getTexture()._premultiplyAlpha && this._srcBlendFactor != BlendFactor.ONE) {
             
