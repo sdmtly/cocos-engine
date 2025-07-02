@@ -34,6 +34,8 @@ const isHuaweiGame = (settingPlatform === 'huawei');
 const isJKWGame = (settingPlatform === 'jkw-game');
 const isQttGame = (settingPlatform === 'qtt-game');
 const isLinkSure = (settingPlatform === 'link-sure');
+const isMigu = (settingPlatform === 'migu-runtime');
+const isHonorGame = (settingPlatform === 'honor-minigame');
 
 const _global = typeof window === 'undefined' ? global : window;
  
@@ -470,6 +472,20 @@ function initSys () {
      sys.TAOBAO_MINIGAME = 121;
 
     /**
+     * @property {Number} MIGU_MINIGAME
+     * @readOnly
+     * @default 122
+     */
+    sys.MIGU_MINIGAME = 122;
+
+     /**
+     * @property {Number} HONOR_MINIGAME
+     * @readOnly
+     * @default 123
+     */
+     sys.HONOR_MINIGAME = 123;
+
+    /**
      * BROWSER_TYPE_WECHAT
      * @property {String} BROWSER_TYPE_WECHAT
      * @readOnly
@@ -727,6 +743,10 @@ function initSys () {
             platform = sys.QTT_GAME;
         } else if (isLinkSure) {
             platform = sys.LINKSURE;
+        } else if (isMigu) {
+            platform = sys.MIGU_MINIGAME;
+        } else if (isHonorGame) {
+            platform = sys.HONOR_MINIGAME;
         }
         else {
             platform = __getPlatform();
@@ -744,7 +764,9 @@ function initSys () {
                         isOppoGame ||
                         isHuaweiGame ||
                         isJKWGame ||
-                        isQttGame);
+                        isQttGame ||
+                        isMigu ||
+                        isHonorGame);
 
         sys.os = __getOS();
         sys.language = __getCurrentLanguage();
@@ -799,29 +821,6 @@ function initSys () {
         var win = window, nav = win.navigator, doc = document, docEle = doc.documentElement;
         var ua = nav.userAgent.toLowerCase();
 
-        if (CC_EDITOR) {
-            sys.isMobile = false;
-            sys.platform = sys.EDITOR_PAGE;
-        }
-        else {
-            /**
-             * Indicate whether system is mobile system
-             * @property {Boolean} isMobile
-             */
-            sys.isMobile = /mobile|android|iphone|ipad/.test(ua);
-
-            /**
-             * Indicate the running platform
-             * @property {Number} platform
-             */
-            if (typeof FbPlayableAd !== "undefined") {
-                sys.platform = sys.FB_PLAYABLE_ADS;
-            }
-            else {
-                sys.platform = sys.isMobile ? sys.MOBILE_BROWSER : sys.DESKTOP_BROWSER;
-            }
-        }
-
         var currLanguage = nav.language;
         currLanguage = currLanguage ? currLanguage : nav.browserLanguage;
 
@@ -860,7 +859,8 @@ function initSys () {
         // so use maxTouchPoints to check whether it's desktop safari or not. 
         // reference: https://stackoverflow.com/questions/58019463/how-to-detect-device-name-in-safari-on-ios-13-while-it-doesnt-show-the-correct
         // FIXME: should remove it when touch-enabled macs are available
-        else if (/(iPhone|iPad|iPod)/.exec(nav.platform) || (nav.platform === 'MacIntel' && nav.maxTouchPoints && nav.maxTouchPoints > 1)) { 
+        else if (/(iPhone|iPad|iPod)/.exec(nav.platform) || /iphone|ipad|ipod/.test(ua)
+            || ((nav.platform === 'MacIntel' || /mac os/.test(ua)) && nav.maxTouchPoints && nav.maxTouchPoints > 2)) {
             iOS = true;
             osVersion = '';
             osMainVersion = 0;
@@ -889,6 +889,29 @@ function initSys () {
          * @property {Number} osMainVersion
          */
         sys.osMainVersion = osMainVersion;
+
+        if (CC_EDITOR) {
+            sys.isMobile = false;
+            sys.platform = sys.EDITOR_PAGE;
+        }
+        else {
+            /**
+             * Indicate whether system is mobile system
+             * @property {Boolean} isMobile
+             */
+            sys.isMobile = iOS || /mobile|android|iphone|ipad/.test(ua);
+
+            /**
+             * Indicate the running platform
+             * @property {Number} platform
+             */
+            if (typeof FbPlayableAd !== "undefined") {
+                sys.platform = sys.FB_PLAYABLE_ADS;
+            }
+            else {
+                sys.platform = sys.isMobile ? sys.MOBILE_BROWSER : sys.DESKTOP_BROWSER;
+            }
+        }
 
         /**
          * Indicate the running browser type

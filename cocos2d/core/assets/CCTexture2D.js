@@ -376,7 +376,8 @@ var Texture2D = cc.Class({
             },
             set (data) {
                 if (data._compressed && data._data) {
-                    this.initWithData(data._data, this._format, data.width, data.height);
+                    let format = data.format;
+                    this.initWithData(data._data, format ? format : this._format, data.width, data.height);
                 }
                 else {
                     this.initWithElement(data);
@@ -746,7 +747,7 @@ var Texture2D = cc.Class({
     
     /**
      * !#en
-     * Destory this texture and immediately release its video memory. (Inherit from cc.Object.destroy)<br>
+     * destroy this texture and immediately release its video memory. (Inherit from cc.Object.destroy)<br>
      * After destroy, this object is not usable anymore.
      * You can use cc.isValid(obj) to check whether the object is destroyed before accessing it.
      * !#zh
